@@ -4,6 +4,7 @@ from collections import deque
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.layers import LeakyReLU
 
 class CarRacingDQNAgent:
     def __init__(
@@ -37,12 +38,15 @@ class CarRacingDQNAgent:
     def build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Conv2D(filters=6, kernel_size=(7, 7), strides=3, activation='relu', input_shape=(96, 96, self.frame_stack_num)))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Conv2D(filters=12, kernel_size=(4, 4), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Conv2D(filters=8, kernel_size=(10, 10), strides=3, input_shape=(96, 96, self.frame_stack_num)))
+        model.add(LeakyReLU(alpha=0.1))
+        model.add(MaxPooling2D(pool_size=(3, 3)))
+        model.add(Conv2D(filters=16, kernel_size=(7, 7)))
+        model.add(LeakyReLU(alpha=0.1))
+        model.add(MaxPooling2D(pool_size=(3, 3)))
         model.add(Flatten())
-        model.add(Dense(216, activation='relu'))
+        model.add(Dense(108))
+        model.add(LeakyReLU(alpha=0.1))
         model.add(Dense(len(self.action_space), activation=None))
         model.compile(loss='mean_squared_error', optimizer=Adam(learning_rate=self.learning_rate, epsilon=1e-7))
         return model
